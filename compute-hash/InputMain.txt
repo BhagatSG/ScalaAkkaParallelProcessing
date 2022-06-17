@@ -1,0 +1,112 @@
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[bbox_type](
+    [bbox_type] [int] NULL,
+    [description] [varchar](255) NULL,
+    [insert_date] [datetime] NULL,
+    [updated_date] [datetime] NULL
+) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[bbox_type] ADD  DEFAULT (getdate()) FOR [insert_date]
+GO
+ALTER TABLE [dbo].[bbox_type] ADD  DEFAULT (getdate()) FOR [updated_date]
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[camera_details](
+    [camera_id] [uniqueidentifier] NOT NULL,
+    [rtsp_url] [varchar](500) NULL,
+    [base_image] [varchar](500) NULL,
+    [threshold_density] [int] NULL,
+    [room_dimension_length] [decimal](20, 10) NULL,
+    [room_dimension_breadth] [decimal](20, 10) NULL,
+    [threshold_social_dist] [decimal](20, 10) NULL,
+    [camera_name] [varchar](500) NULL,
+    [lat] [decimal](20, 10) NULL,
+    [long] [decimal](20, 10) NULL,
+    [email_list] [varchar](500) NULL,
+    [floor] [varchar](500) NULL,
+    [insert_date] [datetime] NULL,
+    [updated_date] [datetime] NULL,
+    [process_id] [int] NULL,
+    [gpu_allocated] [int] NULL,
+    [memory_allocated] [int] NULL,
+    [status] [varchar](500) NULL
+) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[camera_details] ADD PRIMARY KEY CLUSTERED
+(
+    [camera_id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[camera_details] ADD  DEFAULT (getdate()) FOR [insert_date]
+GO
+ALTER TABLE [dbo].[camera_details] ADD  DEFAULT (getdate()) FOR [updated_date]
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[camera_alert](
+    [camera_id] [uniqueidentifier] NULL,
+    [alert_id] [int] IDENTITY(1,1) NOT NULL,
+    [camera_capture_ts] [datetime] NULL,
+    [density_count] [int] NULL,
+    [face_mask_count] [int] NULL,
+    [social_dist_count] [int] NULL,
+    [frame_path] [varchar](500) NULL,
+    [insert_date] [datetime] NULL,
+    [is_deleted] [bit] NULL
+) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[camera_alert] ADD PRIMARY KEY CLUSTERED
+(
+    [alert_id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[camera_alert] ADD  DEFAULT (getdate()) FOR [insert_date]
+GO
+ALTER TABLE [dbo].[camera_alert] ADD  DEFAULT ((0)) FOR [is_deleted]
+GO
+ALTER TABLE [dbo].[camera_alert]  WITH CHECK ADD  CONSTRAINT [fk_camera_id] FOREIGN KEY([camera_id])
+REFERENCES [dbo].[camera_details] ([camera_id])
+ON UPDATE CASCADE
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[camera_alert] CHECK CONSTRAINT [fk_camera_id]
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[bbox](
+    [alert_id] [int] NOT NULL,
+    [bbox_type] [int] NULL,
+    [bbox_id] [int] IDENTITY(1,1) NOT NULL,
+    [bbox_x1] [decimal](20, 10) NULL,
+    [bbox_y1] [decimal](20, 10) NULL,
+    [bbox_x2] [decimal](20, 10) NULL,
+    [bbox_y2] [decimal](20, 10) NULL
+) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[bbox] ADD PRIMARY KEY CLUSTERED
+(
+    [bbox_id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[bbox]  WITH CHECK ADD  CONSTRAINT [fk_alert_id] FOREIGN KEY([alert_id])
+REFERENCES [dbo].[camera_alert] ([alert_id])
+GO
+ALTER TABLE [dbo].[bbox] CHECK CONSTRAINT [fk_alert_id]
+GO
+INSERT INTO [bbox_type] (bbox_type, [description]) VALUES(1, 'people count')
+INSERT INTO [bbox_type] (bbox_type, [description]) VALUES(2, 'face mask violation')
+INSERT INTO [bbox_type] (bbox_type, [description]) VALUES(3, 'social distance violation')
+INSERT INTO [camera_details] ([camera_id] ,[rtsp_url] ,[base_image] ,[threshold_density] ,[room_dimension_length] ,[room_dimension_breadth] ,[threshold_social_dist] ,[camera_name] ,[lat] ,[long] ,[email_list] ,[floor])
+VALUES('751f4307-d05a-462c-9de0-0d88d659c164', 'rtsp://admin:Admin0301@223.25.65.7:1025/Streaming/channels/102', '/home/vulcanadmin/worksafe_lite/base_img/entrance_camera_base.png', 4, 9.3, 4.7, 1, 'Entrance Camera', 1.2765425900, 103.7944727200, '', 2)
+INSERT INTO [camera_details] ([camera_id] ,[rtsp_url] ,[base_image] ,[threshold_density] ,[room_dimension_length] ,[room_dimension_breadth] ,[threshold_social_dist] ,[camera_name] ,[lat] ,[long] ,[email_list] ,[floor])
+VALUES('63abc5a2-cc55-449f-9561-cd3f59859a76', 'rtsp://admin:Admin0301@223.25.65.7:1025/Streaming/channels/202', '/home/vulcanadmin/worksafe_lite/base_img/workplace_camera_base.png', 4, 13, 7, 1, 'Workplace Camera', 1.2771070000, 103.7943220000, '', 2)

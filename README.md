@@ -1,0 +1,2 @@
+# ScalaAkkaParallelProcessing
+Akka Parallel Processing 
